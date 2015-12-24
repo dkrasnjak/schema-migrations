@@ -1,0 +1,60 @@
+/**
+ * Created by moran on 11/3/15.
+ */
+Package.describe({
+  name: 'bookmd:schema-migrations',
+  version: '0.0.5',
+  summary: 'Package for migrations with mongodb database including auto schema migration with simple schema',
+  git: 'https://github.com/bookmd/schema-migrations'
+});
+
+Npm.depends({
+  "mongodb-migrate": "1.2.3"
+});
+
+Package.onUse(function (api) {
+  api.use([
+    'ecmascript@0.1.0',
+    'check@1.0.6',
+    'stevezhu:lodash@3.0.0',
+    'meteorhacks:async@1.0.0',
+    'dburles:mongo-collection-instances@0.3.4',
+    'momentjs:moment@2.10.6'
+  ]);
+
+  api.addFiles([
+    'server/requireNpmMigrations.js',
+    'server/fileHelper.js',
+    'server/schemaHelper.js',
+    'server/migrationsBL.js',
+    'server/methodName.js',
+    'server/methods.js'
+  ], 'server');
+
+  // Adding scripts as assets
+  api.addAssets([
+    'scripts/create-migration.sh',
+    'scripts/run-migrations.sh',
+    'migrations-config.json'
+  ], 'server');
+});
+
+Package.onTest(function (api) {
+  api.use([
+    'ecmascript@0.1.0',
+    'stevezhu:lodash@3.0.0',
+    'check@1.0.6',
+    'sanjo:jasmine@0.16.4',
+    'meteorhacks:async@1.0.0',
+    'aldeed:collection2@2.5.0',
+    'bookmd:schema-migrations@0.0.5'
+  ]);
+
+  api.addFiles([
+    'tests/server/schemaHelper.spec.js',
+    'tests/server/fileHelper.spec.js',
+    'tests/server/migrationsBL.spec.js'
+  ], 'server');
+
+
+});

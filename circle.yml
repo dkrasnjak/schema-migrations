@@ -1,0 +1,12 @@
+general:
+  build_dir: .
+
+dependencies:
+  pre:
+    - ./scripts/install.sh --cache
+  cache_directories:
+    - "~/.npm"
+
+test:
+  override:
+    - ./scripts/run-tests.sh
