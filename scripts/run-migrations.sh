@@ -59,7 +59,9 @@ fi
 MY_PATH="`dirname \"$0\"`"              # relative
 MY_PATH="`( cd \"$MY_PATH\" && pwd )`"  # absolutized and normalized
 
-NPM_PACKAGES_LOCATION="$MY_PATH/../.meteor/local/build/programs/server/npm/bookmd_schema-migrations"
+METOER_HOME='REPLACE_METEOR_HOME'
+
+NPM_PACKAGES_LOCATION="$METOER_HOME/.meteor/local/build/programs/server/npm/bookmd_schema-migrations"
 cli_cmd="node $NPM_PACKAGES_LOCATION/node_modules/mongodb-migrate"
 
 if ! [ -z ${TARGET_DIR_ARG} ]; then
@@ -102,6 +104,8 @@ cd $WORKING_DIR
 cli_cmd="$cli_cmd --config $base_name"
 COPIED_CONFIG_FILE="`pwd`/$base_name"
 
+echo $COPIED_CONFIG_FILE
+
 if ! [ -z ${ENVIRONMENT_ARG} ]; then
   cli_cmd="$cli_cmd --dbPropName $ENVIRONMENT_ARG"
 else
@@ -110,11 +114,21 @@ fi
 
 cli_cmd="$cli_cmd -runmm $OPERATION"
 
+function clearTempData() {
+  # Deleting copied config file and returning to our path
+  if [ -f ${COPIED_CONFIG_FILE} ]; then
+    rm $COPIED_CONFIG_FILE
+  fi
+
+  cd $MY_PATH
+}
+
+trap 'clearTempData' SIGINT
+
 ## Start
 echo "------- Starting migrations in $WORKING_DIR -------"
+echo -e "\nDO NOT SHUT DOWN PROCESS UNTIL IT FINISHES !\n"
 echo "$cli_cmd"
 eval $cli_cmd
 
-# Deleting copied config file and returning to our path
-rm $COPIED_CONFIG_FILE
-cd $MY_PATH
+clearTempData

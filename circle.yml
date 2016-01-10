@@ -3,10 +3,10 @@ general:
 
 dependencies:
   pre:
-    - ./scripts/install.sh --cache
+    - ./scripts/ci/install-meteor.sh --cache
   cache_directories:
     - "~/.npm"
 
 test:
   override:
-    - ./scripts/run-tests.sh
+    - ./scripts/ci/run-tests.sh

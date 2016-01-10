@@ -6,6 +6,11 @@ key="$1"
 echo "[Param] $1 = $2"
 
 case $key in
+    -i|--init)
+    INIT=1
+#    shift # past argument
+    ;;
+
     -n|--name)
     NAME="$2"
     shift # past argument
@@ -44,6 +49,7 @@ SCRIPT_NAME=`basename $0`
 
 function usage {
   echo "Usage: $SCRIPT_NAME params [options]"
+  echo "-i|--init creates a schema file before creating the first migration"
   echo "-n|--name <migration name>"
   echo "-ver|--version <migraion version>"
   echo "-old|--oldVersion <old migraion version>"
@@ -61,8 +67,15 @@ if ! [ `ps -ef | grep -i meteor | wc -l` -gt 1 ]; then
   exit 1
 fi
 
-# Verifying mandatory arguments
-if [ -z "$NAME" ] || [ -z "$VERSION" ] || [ -z "$OLD_VERSION" ]; then
+# check arguments for init mode
+if ! [ -z "$INIT" ]; then
+  if [ -z "$NAME" ] || [ -z "$VERSION" ]; then
+    echo "Wrong arguments. for init mode please provide name and version"
+    usage
+    exit 1
+  fi
+# check arguments on regular mode
+elif [ -z "$NAME" ] || [ -z "$VERSION" ] || [ -z "$OLD_VERSION" ]; then
   echo "Wrong arguments"
   usage
   exit 1
@@ -75,10 +88,19 @@ fi
 
 # Preparing file to execute on meteor shell
 TEMP_FILE=`mktemp`
+if ! [ -z "$INIT" ]; then
+cat << EOF > $TEMP_FILE
+Meteor.call(MigrationsMethodName.MIGRATIONS_CREATE_SCHEMA_ONLY, '$NAME', $VERSION, '$ABS_PATH');
+.exit
+EOF
+else
 cat << EOF > $TEMP_FILE
 Meteor.call(MigrationsMethodName.MIGRATIONS_CREATE, '$NAME', $VERSION, $OLD_VERSION, '$ABS_PATH');
 .exit
 EOF
+fi
+
+
 
 # Executing. It is done this way, because we must wait for meteor shell to be ready
 ( sleep 3; cat ${TEMP_FILE} ) | meteor shell

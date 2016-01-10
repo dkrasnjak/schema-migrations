@@ -2,11 +2,6 @@
  * Created by chenrozenes on 29/12/2015.
  */
 var fs = Npm.require('fs');
-
-// Global async wraps to fs functions
-var fsMkdir = Async.wrap(fs.mkdir);
-var fsReadFile = Async.wrap(fs.readFile);
-var fsWriteFile = Async.wrap(fs.writeFile);
  
 /**
  * Class with helper functions to handle the files and directories needed for the migrations
@@ -23,7 +18,7 @@ class FileHelper {
       fs.statSync(dir);
     } catch (e) {
       console.log('[MIGRATIONS] creating migration dir: ' + dir);
-      fsMkdir(dir);
+      fs.mkdirSync(dir);
     }
   }
 
@@ -34,7 +29,7 @@ class FileHelper {
    * @return file content
    */
   static readFile(filePath) {
-    return fsReadFile(filePath);
+    return fs.readFileSync(filePath);
   }
 
   /**
@@ -44,7 +39,7 @@ class FileHelper {
    * @param content data to write to the file
    */
   static writeFile(filePath, content) {
-    return fsWriteFile(filePath, content);
+    return fs.writeFileSync(filePath, content);
   }
 
   /**
@@ -81,35 +76,37 @@ class FileHelper {
     upMethods = upMethods || '';
     downMethods = downMethods || '';
 
-    var template = [
-      '/**',
-      '  This is a generated migration file.',
-      '  Auto migration was added to the up and down functions, after calculating the schema diff.',
-      '  The file will run in a different node environment.',
-      '',
-      '  Extra migration actions should be written here by the following usage:',
-      '',
-      '    // Getting a collection',
-      '    var collection = db.collection(\'customer\');',
-      '',
-      '    // Regular mongo action execution',
-      '    collection.update({_id: 123}, {firstName: \'John\'}, callback);',
-      '',
-      '  "next" function should be called when the migration function is done.',
-      '  If error occurred, "next" should be called like this: next(err)',
-      '',
-      '  For more info, checkout the mongo-migrate package: https://github.com/afloyd/mongo-migrate',
-      ' */',
-      'exports.up = function (db, next) {',
-      upMethods,
-      '  next();',
-      '};',
-      '',
-      'exports.down = function (db, next) {',
-      downMethods,
-      '  next();',
-      '};'
-    ].join('\n');
+    var template =
+      `/**
+  This is a generated migration file.
+  Auto migration was added to the up and down functions, after calculating the schema diff.
+  The file will run in a different node environment.
+
+  Extra migration actions should be written here by the following usage:
+
+    // Getting a collection
+    var collection = db.collection(\'customer\');
+
+    // Regular mongo action execution
+    collection.update({_id: 123}, {firstName: \'John\'}, callback);
+
+  "next" function should be called when the migration function is done.
+  If error occurred, "next" should be called like this: next(err)
+
+  For more info, checkout the mongo-migrate package: https://github.com/afloyd/mongo-migrate
+*/
+exports.up = function (db, next) {
+  var collection = null;
+  ${upMethods}
+  next();
+};
+
+exports.down = function (db, next) {
+  var collection = null;
+  ${downMethods}
+  next();
+};
+`;
 
     return template;
   }

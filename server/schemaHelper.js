@@ -16,10 +16,30 @@ class SchemaHelper {
       // Adding only collections that are defined by simple schema
       var currSchema = currCollection.instance.simpleSchema();
       if (!!currSchema)
-        schemas.push({name: currCollection.name, schema: currSchema._schema});
+        schemas.push({name: currCollection.name, schema: this._normalizeSchema(currSchema._schema)});
     }
 
     return schemas;
+  }
+
+  /**
+   * Replaces function and object type values with their type name.
+   * For example: String is actually a function (string object), it will replace it with 'String'
+   * @param schema
+   * @returns {*}
+   * @private
+   */
+  static _normalizeSchema(schema) {
+    return _.each(schema, (propertyValue, key) => {
+      let normalizedValue = propertyValue;
+
+      if (typeof propertyValue == 'function')
+        normalizedValue = propertyValue.name;
+      else if (typeof propertyValue == 'object')
+        normalizedValue = this._normalizeSchema(propertyValue);
+
+      schema[key] = normalizedValue;
+    });
   }
 
   /**
@@ -41,10 +61,10 @@ class SchemaHelper {
    * Fetches a schema from a file
    *
    * @param fileName full path file name to the schema file
-   * @returns {{}}
+   * @returns {Array}
    */
   static fetchSchemaFromFile(fileName) {
-    var schema = {};
+    var schema = [];
 
     try {
       var content = FileHelper.readFile(fileName);
@@ -65,10 +85,80 @@ class SchemaHelper {
    * @returns {{up: string, down: string}}
    */
   static getUpdateMethods(schema1, schema2) {
-    // TODO use david package here
     var methods = {up: '', down: ''};
 
+    for (let currSchema of schema1) {
+      // Finding the curr collection's new version in the schema2 array
+      var collNewVer = _.findWhere(schema2, {name: currSchema.name});
+
+      // If there is no new version - probably the collection deleted
+      if (!collNewVer)
+        continue;
+
+      // Creating up and down methods for this collection (this schema)
+      var upMethod = this._buildMethod(currSchema, collNewVer);
+      var downMethod = this._buildMethod(collNewVer, currSchema);
+
+      methods.up = methods.up.concat(upMethod);
+      methods.down = methods.down.concat(downMethod);
+    }
+
     return methods;
+  }
+
+  /**
+   * Compares a 2 single schemas and creates the method string for updating in the migration file.
+   * The string method is actually the auto migration step needed for migrating from singleSchema1 and singleSchema2
+   * @param singleSchema1
+   * @param singleSchema2
+   * @returns {*}
+   * @private
+   */
+  static _buildMethod(singleSchema1, singleSchema2) {
+    // Compare the 2 schemas and get the actions
+    var actions = SimpleSchemaVersioning.getMigrationPlan(singleSchema1.schema, singleSchema2.schema);
+
+    var method = null;
+
+    // Checking if any actions are needed
+    if (!actions || !actions.update) {
+      method =
+        `
+  // Could not find difference for collection ${singleSchema1.name}. Auto migration not created
+  `;
+    } else {
+      method =
+        `
+  collection = db.collection('${singleSchema1.name}');
+  collection.update(${JSON.stringify(actions.update[0])},
+                    ${JSON.stringify(actions.update[1])},
+                    {multi: true}, (err) => {
+    if (err) console.log('Error occurred when migrating collection ${singleSchema1.name}. err=' + err);
+    else console.log('${singleSchema1.name} collection migrated successfully');
+  });
+  `;
+    }
+
+    // If we have some errors on our auto migration, we'll append it
+    if (!!actions && !!actions.errors && actions.errors.length !== 0) {
+      var errors = _.map(actions.errors, (current) => {
+        return current.reason + ' : ' + current.details;
+      });
+
+      var errorsString = errors.join('\n\t\t\t');
+      var errorMsg=
+        `
+  /*
+    NOTE !!! Auto migration DIDN'T go smoothly on collection: '${singleSchema1.name}' !!!
+    Follow the following errors to fix it manually:
+      ${errorsString}
+   */
+   `;
+
+      method = method.concat(errorMsg);
+    }
+
+    return method;
   }
 }
 
