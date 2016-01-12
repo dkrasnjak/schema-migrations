@@ -8,20 +8,21 @@ The package contains scripts for an easy use also on production environment, tha
 
 ## Installation
 
-1. Create a scripts folder in your meteor app:
-    ```bash
-    mkdir scripts
+1. Create a scripts folder in your meteor app:   
     ```
+    mkdir scripts
+    ```   
+
 2. The package contains scripts for easier usage. So Create a ```.migrations-defs.json``` file for the package installation definitions:
    ```
    {
     "scriptsDir": "relative/path/to/scripts/directory/from/meteor/home/dir"
    }
    ```
-   Create the file in:
-   ```$METEOR_HOME/.meteor/.migrataions-defs.json```
+   Create the file in: ```$METEOR_HOME/.meteor/.migrataions-defs.json```   
+   
 3. Install the package as mentioned above.
-    ```bash
+    ```
     meteor add bookmd:schema-migrations
     ```
 4. Run your Meteor app, you'll probably get a message like that: _"Cannot copy schema-migrations package scripts yet. dir still not exists."_.   
