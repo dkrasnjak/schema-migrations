@@ -8,11 +8,11 @@ if (!process.env.SKIP_PLUGIN) {
 
   var meteorHome = process.env.PWD;
 
-  var pluginDefinitionFilePath = path.resolve(meteorHome + '/.meteor/.migrations-defs.json');
+  var pluginDefinitionFilePath = path.resolve(meteorHome + '/migrations-settings.json');
 
-  // Checking if .migrations-defs.json exists. it is mandatory for the plugin execution
+  // Checking if migrations-settings.json exists. it is mandatory for the plugin execution
   if (!fs.existsSync(pluginDefinitionFilePath)) {
-    console.log('./.meteor/.migrations-defs.json not found. cannot initiate migrations package');
+    console.log('./.meteor/migrations-settings.json not found. cannot initiate migrations package');
     console.log('For more instructions read the package README file');
     process.exit(1);
   }
@@ -20,23 +20,23 @@ if (!process.env.SKIP_PLUGIN) {
   var definitionFileBuffer = fs.readFileSync(pluginDefinitionFilePath);
 
   try {
-    // Parsing .migrations-defs file
-    var migrationsDefs = JSON.parse(definitionFileBuffer);
+    // Parsing migrations-settings file
+    var migrationsSettings = JSON.parse(definitionFileBuffer);
   } catch (e) {
-    console.log('Cannot parse .migrations-defs file. Are you sure its in JSON format?');
+    console.log('Cannot parse migrations-settings file. Are you sure its in JSON format?');
     process.exit(1);
   }
 
   // .migrations file must have a scriptsDir property for installation
-  if (!migrationsDefs.scriptsDir) {
-    console.log('.migrations-defs file has not scriptsDir property');
+  if (!migrationsSettings.scriptsDir) {
+    console.log('migrations-settings file has not scriptsDir property');
     console.log('For more instructions read the package README file');
     process.exit(1);
   }
 
   try {
     var assetsScriptsPath = path.resolve(meteorHome + '/.meteor/local/build/programs/server/assets/packages/bookmd_schema-migrations/scripts/');
-    var userScriptsPath = path.resolve(meteorHome + migrationsDefs.scriptsDir);
+    var userScriptsPath = path.resolve(meteorHome + migrationsSettings.scriptsDir);
 
     var files = [];
 
@@ -49,7 +49,7 @@ if (!process.env.SKIP_PLUGIN) {
     // Just for checking if we did something this build and printing 'completed' at the end
     var oneFileCopied = false;
 
-    // Copying package scripts to the directory specified in the .migrations-defs file and giving execution permissions
+    // Copying package scripts to the directory specified in the migrations-settings file and giving execution permissions
     for (var i=0, len=files.length; i<len ; i++) {
       var file = files[i];
       var fullAssetFileName = path.resolve(assetsScriptsPath, file);
