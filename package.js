@@ -3,7 +3,7 @@
  */
 Package.describe({
   name: 'bookmd:schema-migrations',
-  version: '0.1.0',
+  version: '0.1.2',
   summary: 'Auto database migrations with mongodb and simple schema',
   git: 'https://github.com/bookmd/schema-migrations'
 });
@@ -43,6 +43,7 @@ Package.onUse(function (api) {
   api.addAssets([
     'scripts/create-migration.sh',
     'scripts/run-migrations.sh',
+    'scripts/check-migrations.sh',
     'migrations-config.json'
   ], 'server');
 });
@@ -56,7 +57,7 @@ Package.onTest(function (api) {
     'meteorhacks:async@1.0.0',
     'aldeed:collection2@2.5.0',
     'davidyaha:simple-schema-versioning@0.0.2',
-    'bookmd:schema-migrations@0.1.0'
+    'bookmd:schema-migrations@0.1.2'
   ]);
 
   api.addFiles([
