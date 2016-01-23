@@ -79,5 +79,5 @@ The package will copy the scripts to the folder specified in the ```migrations-s
 If you wish to stop it, and NOT copy the package scripts anymore, you can set an environment variable for skipping the package plug in:
 
 ```bash
-    export SKIP_PLUGIN=1
+    export SKIP_MIGRATIONS_COPY=1
 ```
