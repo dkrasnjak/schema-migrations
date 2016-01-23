@@ -10,33 +10,32 @@ if (!process.env.SKIP_PLUGIN) {
 
   var pluginDefinitionFilePath = path.resolve(meteorHome + '/migrations-settings.json');
 
-  // Checking if migrations-settings.json exists. it is mandatory for the plugin execution
-  if (!fs.existsSync(pluginDefinitionFilePath)) {
-    console.log('./.meteor/migrations-settings.json not found. cannot initiate migrations package');
-    console.log('For more instructions read the package README file');
-    process.exit(1);
-  }
+  // Checking if migrations-settings.json exists. If not, will use default settings
+  if (fs.existsSync(pluginDefinitionFilePath)) {
 
-  var definitionFileBuffer = fs.readFileSync(pluginDefinitionFilePath);
+    var definitionFileBuffer = fs.readFileSync(pluginDefinitionFilePath);
 
-  try {
-    // Parsing migrations-settings file
-    var migrationsSettings = JSON.parse(definitionFileBuffer);
-  } catch (e) {
-    console.log('Cannot parse migrations-settings file. Are you sure its in JSON format?');
-    process.exit(1);
-  }
+    try {
+      // Parsing migrations-settings file
+      var migrationsSettings = JSON.parse(definitionFileBuffer);
+    } catch (e) {
+      console.log('Cannot parse migrations-settings file. Are you sure its in JSON format?');
+      process.exit(1);
+    }
 
-  // .migrations file must have a scriptsDir property for installation
-  if (!migrationsSettings.scriptsDir) {
-    console.log('migrations-settings file has not scriptsDir property');
-    console.log('For more instructions read the package README file');
-    process.exit(1);
+    // .migrations file must have a scriptsDir property for installation
+    if (!migrationsSettings.scriptsDir) {
+      console.log('migrations-settings file has no scriptsDir property');
+      console.log('For more instructions read the package README file');
+      process.exit(1);
+    }
   }
 
   try {
     var assetsScriptsPath = path.resolve(meteorHome + '/.meteor/local/build/programs/server/assets/packages/bookmd_schema-migrations/scripts/');
-    var userScriptsPath = path.resolve(meteorHome + migrationsSettings.scriptsDir);
+    var userScriptsPath = path.resolve(meteorHome + (migrationsSettings ? migrationsSettings.scriptsDir : '/migration/scripts'));
+
+    ensureDirExists(userScriptsPath);
 
     var files = [];
 
@@ -76,4 +75,30 @@ if (!process.env.SKIP_PLUGIN) {
   } catch (e) {
     console.log('Error occurred and schemas-migrations cannot be installed. err=' + e);
   }
+}
+
+function ensureDirExists(pathToDir) {
+  // Checking for empty paths
+  if (!pathToDir) {
+    console.log('No path specified for scripts dir');
+    process.exit(1);
+  }
+
+  // Stops when dir resolves to root, current or previous dir.
+  if (pathToDir && (pathToDir === '/' || pathToDir === '.' || pathToDir === '..'))
+    return true;
+
+  var retValue = fs.existsSync(pathToDir);
+
+  // if the current dir path does not exist, making sure that the parent dir exists before creating the current dir.
+  if (!retValue && ensureDirExists(path.dirname(pathToDir))) {
+    try {
+      fs.mkdirSync(pathToDir);
+      retValue = true
+    } catch (err) {
+      console.log('Couldn\'t create dir', pathToDir, 'due to the following error', err);
+    }
+  }
+
+  return retValue;
 }
