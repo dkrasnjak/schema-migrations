@@ -2,7 +2,7 @@
  * Created by chenrozenes on 07/01/2016.
  */
 // Having the option of skipping the plug in (for package tests for example)
-if (!process.env.SKIP_PLUGIN) {
+if (!process.env.SKIP_MIGRATIONS_COPY) {
   var path = Plugin.path;
   var fs = Plugin.fs;
 
