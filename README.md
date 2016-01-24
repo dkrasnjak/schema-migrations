@@ -13,13 +13,13 @@ The package contains scripts for an easy use also on production environment, tha
     mkdir scripts
     ```   
 
-2. The package contains scripts for easier usage. So Create a ```migrations-settings.json``` file for the package installation definitions:
+2. The package contains scripts for easier usage. So Create a ```migrations-setup-settings.json``` file for the package installation definitions:
    ```
    {
-    "scriptsDir": "relative/path/to/scripts/directory/from/meteor/home/dir"
+    "scriptsDir": "relative/path/to/scripts/directory/from/meteor/project/dir"
    }
    ```
-   Create the file in: ```$METEOR_HOME/migrataions-settings.json```
+   Create the file in your Meteor project home folder: ```$PROJECT_HOME/migrations-setup-settings.json```
    
 3. Install the package as mentioned above.
     ```
@@ -27,9 +27,12 @@ The package contains scripts for an easy use also on production environment, tha
     ```
 4. Run your Meteor app, you'll probably get a message like that: _"Cannot copy schema-migrations package scripts yet. dir still not exists."_.   
 Thats ok, because the package needs to copy its scripts to your project, and the package is not loaded yet by Meteor
-5. Run your Meteor app again, now the package will copy the scripts to the directory specified in the ```migrations-settings.json``` file.
+5. Run your Meteor app again, now the package will copy the scripts to the directory specified in the ```migrations-setup-settings.json``` file.
 
 ## Usage
+
+### Scripts Usage
+
 **!! Meteor must be up while running the scripts !!**  
 From your Meteor app directory, run:
 
@@ -40,16 +43,36 @@ From your Meteor app directory, run:
   
 2. To run the migrations
     ```bash
-    scripts/run-migrations.sh --config migrations.config --environment dev --op up --targetDir /path/to/migraions/parent/dir
+    scripts/run-migrations.sh --config migrations-config.json --environment dev --op up --targetDir /path/to/migrations/parent/dir
     ```
 
 3. Creating the first migration:   
-    The package copmares between your old schema and the new one. But what to do on he first time?   
+    The package compares between your old schema and the new one. But what to do on he first time?   
     You can run the creation script with an init parameter, and it will create your schema file to compare with the next migrations:   
     ```bash
     scripts/create-migration.sh --init --name my_migration --version 0 --path /path/to/migrations/parent/dir
     ```
     
+4. Checking migrations ran:   
+    Another script for you to use is ```check-migrations.sh```. It will show you the migration files that already ran on your database.
+    ```bash
+    scripts/check-migrations --config migrations-config.json --environment dev
+    ```
+        
+    You can run it with a ```--last``` flag (or ```-l```) to get the last migration file ran
+
+
+### Meteor call usage
+You can create a migration file using a Meteor call:
+```javascript
+Meteor.call(MigrationsMethodName.MIGRATIONS_CREATE, 'migration-name', migration-version, migration-old-version, '/absolute/path/to/migrations/parent/dir');
+```
+
+If you wish just to create a schema file, you can call this method:
+```javascript
+Meteor.call(MigrationsMethodName.MIGRATIONS_CREATE_SCHEMA_ONLY, 'migration-name', migration-version, '/absolute/path/to/migrations/parent/dir');
+```
+
 ## Configuration
 You'll need a configuration file with details of the database connection.  
 Several environments can be set also.
@@ -75,7 +98,7 @@ You can use an example configuration file located in:
 You can create several environments and call a different ```--environment``` when running ```run-migrations.sh``` parameter as described above.
 
 ### Stop copying scripts
-The package will copy the scripts to the folder specified in the ```migrations-settings.json``` file every Meteor build, unless the files exists.  
+The package will copy the scripts to the folder specified in the ```migrations-setup-settings.json``` file every Meteor build, unless the files exists.
 If you wish to stop it, and NOT copy the package scripts anymore, you can set an environment variable for skipping the package plug in:
 
 ```bash
