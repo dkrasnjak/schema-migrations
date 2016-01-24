@@ -8,24 +8,24 @@ if (!process.env.SKIP_MIGRATIONS_COPY) {
 
   var meteorHome = process.env.PWD;
 
-  var pluginDefinitionFilePath = path.resolve(meteorHome + '/migrations-settings.json');
+  var pluginDefinitionFilePath = path.resolve(meteorHome + '/migrations-setup-settings.json');
 
-  // Checking if migrations-settings.json exists. If not, will use default settings
+  // Checking if migrations-setup-settings.json exists. If not, will use default settings
   if (fs.existsSync(pluginDefinitionFilePath)) {
 
     var definitionFileBuffer = fs.readFileSync(pluginDefinitionFilePath);
 
     try {
-      // Parsing migrations-settings file
+      // Parsing migrations-setup-settings file
       var migrationsSettings = JSON.parse(definitionFileBuffer);
     } catch (e) {
-      console.log('Cannot parse migrations-settings file. Are you sure its in JSON format?');
+      console.log('Cannot parse migrations-setup-settings file. Are you sure its in JSON format?');
       process.exit(1);
     }
 
     // .migrations file must have a scriptsDir property for installation
     if (!migrationsSettings.scriptsDir) {
-      console.log('migrations-settings file has no scriptsDir property');
+      console.log('migrations-setup-settings file has no scriptsDir property');
       console.log('For more instructions read the package README file');
       process.exit(1);
     }
@@ -48,7 +48,7 @@ if (!process.env.SKIP_MIGRATIONS_COPY) {
     // Just for checking if we did something this build and printing 'completed' at the end
     var oneFileCopied = false;
 
-    // Copying package scripts to the directory specified in the migrations-settings file and giving execution permissions
+    // Copying package scripts to the directory specified in the migrations-setup-settings file and giving execution permissions
     for (var i=0, len=files.length; i<len ; i++) {
       var file = files[i];
       var fullAssetFileName = path.resolve(assetsScriptsPath, file);
