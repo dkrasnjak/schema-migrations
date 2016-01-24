@@ -33,7 +33,7 @@ if (!process.env.SKIP_PLUGIN) {
 
   try {
     var assetsScriptsPath = path.resolve(meteorHome + '/.meteor/local/build/programs/server/assets/packages/bookmd_schema-migrations/scripts/');
-    var userScriptsPath = path.resolve(meteorHome + (migrationsSettings ? migrationsSettings.scriptsDir : '/migration/scripts'));
+    var userScriptsPath = path.resolve(meteorHome + (migrationsSettings ? migrationsSettings.scriptsDir : '/scripts/migrations'));
 
     ensureDirExists(userScriptsPath);
 
