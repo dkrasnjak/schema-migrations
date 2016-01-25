@@ -66,7 +66,7 @@ describe('SchemaHelper', function () {
   /*
     NOTE !!! Auto migration DIDN'T go smoothly on collection: 'customer' !!!
     Follow the following errors to fix it manually:
-      Cannot determine value : The added field 'fullName' does not have a default value
+      Cannot determine value : The added field 'fullName' does not have a default value and is not optional
    */
    `;
 
