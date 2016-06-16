@@ -25,6 +25,12 @@ case $key in
   shift # past value
   ;;
 
+  # Handle npm install
+    -pkg|--packages)
+    NPM_PACKAGES="$2"
+    shift # past value
+    ;;
+
   # Handle operation
   -op|--operation)
   OPERATION_ARG="$2"
@@ -59,7 +65,7 @@ fi
 MY_PATH="`dirname \"$0\"`"              # relative
 MY_PATH="`( cd \"$MY_PATH\" && pwd )`"  # absolutized and normalized
 
-METOER_HOME='REPLACE_METEOR_HOME'
+METOER_HOME='/Users/moran/book-md-ui'
 
 NPM_PACKAGES_LOCATION="$METOER_HOME/.meteor/local/build/programs/server/npm/bookmd_schema-migrations"
 cli_cmd="node $NPM_PACKAGES_LOCATION/node_modules/mongodb-migrate"
@@ -114,6 +120,10 @@ fi
 
 cli_cmd="$cli_cmd -runmm $OPERATION"
 
+npm_install="npm install $NPM_PACKAGES"
+
+npm_uninstall="npm uninstall $NPM_PACKAGES"
+
 function clearTempData() {
   # Deleting copied config file and returning to our path
   if [ -f ${COPIED_CONFIG_FILE} ]; then
@@ -129,6 +139,8 @@ trap 'clearTempData' SIGINT
 echo "------- Starting migrations in $WORKING_DIR -------"
 echo -e "\nDO NOT SHUT DOWN PROCESS UNTIL IT FINISHES !\n"
 echo "$cli_cmd"
+echo "$npm_install"
+eval "$npm_install"
 eval $cli_cmd
-
+eval "$npm_uninstall"
 clearTempData

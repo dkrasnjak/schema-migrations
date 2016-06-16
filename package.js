@@ -3,7 +3,7 @@
  */
 Package.describe({
   name: 'bookmd:schema-migrations',
-  version: '0.1.5',
+  version: '0.1.6',
   summary: 'Auto database migrations with mongodb and simple schema',
   git: 'https://github.com/bookmd/schema-migrations'
 });
