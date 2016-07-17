@@ -21,7 +21,7 @@ cli_cmd="$cli_cmd SKIP_MIGRATIONS_COPY=1 VELOCITY_TEST_PACKAGES=1 meteor test-pa
 
 if ! [ -z ${CI} ]; then
   echo "Run in CI mode"
-  cli_cmd="$cli_cmd --velocity --release velocity:METEOR@1.2.0.2_1"
+  cli_cmd="$cli_cmd --release velocity:METEOR@1.2.0.2_1 --velocity"
 fi
 
 echo "Starting tests"
