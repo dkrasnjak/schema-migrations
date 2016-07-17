@@ -65,9 +65,11 @@ fi
 MY_PATH="`dirname \"$0\"`"              # relative
 MY_PATH="`( cd \"$MY_PATH\" && pwd )`"  # absolutized and normalized
 
-METOER_HOME='/Users/moran/book-md-ui'
+METOER_HOME='REPLACE_METEOR_HOME'
 
-NPM_PACKAGES_LOCATION="$METOER_HOME/.meteor/local/build/programs/server/npm/bookmd_schema-migrations"
+if [ -z ${NPM_PACKAGES_LOCATION} ]; then
+  NPM_PACKAGES_LOCATION="$METOER_HOME/.meteor/local/build/programs/server/npm/bookmd_schema-migrations"
+fi
 cli_cmd="node $NPM_PACKAGES_LOCATION/node_modules/mongodb-migrate"
 
 if ! [ -z ${TARGET_DIR_ARG} ]; then
