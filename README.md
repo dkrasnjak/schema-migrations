@@ -2,10 +2,10 @@
 
 # bookmd:schema-migrations
 
-@DEPRECATION NOTICE
-We decided to deprecate the package due to major architectural changes and the Meteor version update that require fundamental changes in the package.
-Last stable version: 0.1.5, Meteor version: 1.2.0.1
-
+@DEPRECATION NOTICE   
+We decided to deprecate the package due to major architectural changes and the Meteor version update that require fundamental changes in the package.   
+Last stable version: 0.1.5, Meteor version: 1.2.0.1   
+   
 This package ables to perform migrations with mongodb and simple schema.   
 It compares 2 schemas and creates a migration file that contains auto migration actions wherever it is possible.   
 The auto migrations can be edited, you don't have to use it, it just can make your life easier when creating migrations with a lot of collections.    
